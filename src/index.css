@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-primary-50: #f5f6ff;
+  --color-primary-100: #eef2ff;
+  --color-primary-600: #312e81; /* Deep Indigo / Editorial Ink */
+  --color-primary-700: #1e1b4b; /* Darker Indigo */
+  
+  --color-brand-orange: #ff5a00;
+  --color-brand-cyan: #00f0ff;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #faf9f6; /* Warm editorial newsprint/paper color */
+  color: #1e293b;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.font-display {
+  font-family: var(--font-display) !important;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Global Editorial overrides to preserve layout while applying theme aesthetics */
+.rounded-2xl {
+  border-radius: 4px !important;
+}
+
+.rounded-xl {
+  border-radius: 3px !important;
+}
+
+.rounded-lg {
+  border-radius: 2px !important;
+}
+
+.rounded-3xl {
+  border-radius: 6px !important;
+}
+
+.rounded-full:not(.w-12):not(.w-9):not(.w-6):not(.w-8):not(.h-6):not(.h-12):not(.h-9):not(.h-8):not(.h-4.5):not(.w-4.5) {
+  border-radius: 3px !important; /* Keep round circles round but style tags sharp */
+}
+
+.shadow-sm, .shadow-2xs {
+  box-shadow: none !important;
+  border-color: #e2e8f0 !important;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display) !important;
+}
+
+/* Make italic accents look gorgeous */
+.italic-editorial {
+  font-family: var(--font-display);
+  font-style: italic;
+}
+

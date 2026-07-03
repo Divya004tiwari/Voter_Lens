@@ -1,0 +1,199 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account registration and demographic information mapping",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "mobile": { "type": "string" },
+        "role": { "type": "string", "enum": ["Citizen", "Moderator", "Administrator"] },
+        "location": { "type": "object" },
+        "reputation": { "type": "number" },
+        "isAnonymousMode": { "type": "boolean" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["uid", "username", "email", "role", "location", "reputation", "isAnonymousMode", "createdAt"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Citizen discussion thread, civic issue report, or local opinion post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["Discussion", "Civic Issue", "Development", "Opinion"] },
+        "subCategory": { "type": "string" },
+        "location": { "type": "object" },
+        "status": { "type": "string", "enum": ["Reported", "Under Review", "Escalated", "Resolved"] },
+        "likesCount": { "type": "number" },
+        "likes": { "type": "array" },
+        "commentsCount": { "type": "number" },
+        "bookmarkedBy": { "type": "array" },
+        "sentiment": { "type": "string" },
+        "isAnonymous": { "type": "boolean" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorReputation": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "title", "description", "category", "location", "isAnonymous", "authorId", "authorName", "createdAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "Individual response comments under a post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "text": { "type": "string" },
+        "isAnonymous": { "type": "boolean" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorReputation": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "postId", "text", "isAnonymous", "authorId", "authorName", "createdAt"]
+    },
+    "Poll": {
+      "title": "Poll",
+      "description": "Interactive local polling options and votes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "question": { "type": "string" },
+        "options": { "type": "array" },
+        "category": { "type": "string" },
+        "isMultiChoice": { "type": "boolean" },
+        "votes": { "type": "object" },
+        "endsAt": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "question", "options", "category", "isMultiChoice", "votes", "endsAt", "createdAt"]
+    },
+    "CivicIssue": {
+      "title": "CivicIssue",
+      "description": "Independently tracked civic issue reports",
+      "type": "object",
+      "properties": {
+        "issueId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "location": { "type": "object" },
+        "evidenceFiles": { "type": "array" },
+        "status": { "type": "string" },
+        "escalationLevel": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["issueId", "title", "description", "category", "location", "status", "createdBy", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Alert notification items for a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "userId", "title", "message", "type", "isRead", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Moderator or Administrator audit log entries",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "performedBy": { "type": "string" },
+        "performedByRole": { "type": "string" },
+        "userIdAffected": { "type": "string" },
+        "usernameAffected": { "type": "string" },
+        "contentIdAffected": { "type": "string" },
+        "contentTypeAffected": { "type": "string" },
+        "reason": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "action", "performedBy", "performedByRole", "reason", "createdAt"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "User-reported content items for moderation",
+      "type": "object",
+      "properties": {
+        "reportId": { "type": "string" },
+        "targetId": { "type": "string" },
+        "postId": { "type": "string" },
+        "targetType": { "type": "string" },
+        "reporterId": { "type": "string" },
+        "reason": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["reportId", "targetId", "targetType", "reporterId", "reason", "createdAt"]
+    },
+    "Warning": {
+      "title": "Warning",
+      "description": "Moderator-issued user warnings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "level": { "type": "number" },
+        "reason": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "moderatorName": { "type": "string" },
+        "recommendedAction": { "type": "string" }
+      },
+      "required": ["id", "userId", "level", "reason", "description", "createdAt", "moderatorName", "recommendedAction"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles keyed by unique auth UIDs"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Citizen reports and discussions"
+    },
+    "/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Comments under citizen reports"
+    },
+    "/issues/{issueId}": {
+      "schema": "CivicIssue",
+      "description": "Independently tracked civic issues"
+    },
+    "/polls/{pollId}": {
+      "schema": "Poll",
+      "description": "Community and municipal polls"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "User notifications"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Audit trail log entries"
+    },
+    "/reports/{reportId}": {
+      "schema": "Report",
+      "description": "Moderation reports flagged by citizens"
+    },
+    "/warnings/{warningId}": {
+      "schema": "Warning",
+      "description": "Warnings issued to users for infractions"
+    }
+  }
+}

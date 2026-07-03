@@ -1,0 +1,6 @@
+{
+  "name": "VoterLens",
+  "description": "VoterLens is a citizen-driven platform for political accountability and civic engagement in India. It organizes public discussions, leader tracking, civic issue reports, and polls mapped down to local administration levels.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

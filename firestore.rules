@@ -1,0 +1,169 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Core Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserRole(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.role;
+    }
+
+    function hasRole(role) {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserRole(request.auth.uid) == role;
+    }
+
+    function isModerator() {
+      return hasRole('Moderator') || hasRole('Administrator');
+    }
+
+    // --- USER PROFILES ---
+    match /users/{userId} {
+      allow read: if true;
+      
+      allow create: if isOwner(userId)
+        && incoming().uid == userId
+        && incoming().username is string && incoming().username.size() <= 100
+        && incoming().email is string && incoming().email.size() <= 100
+        && incoming().role in ['Citizen', 'Moderator', 'Administrator', 'Fact Checker']
+        && incoming().createdAt is int;
+        
+      allow update: if (isOwner(userId)
+        && incoming().uid == userId
+        && incoming().username is string && incoming().username.size() <= 100
+        && incoming().email == existing().email // email is immutable
+        && (
+          // Standard user profile updates
+          incoming().diff(existing()).affectedKeys().hasOnly(['username', 'mobile', 'location', 'isAnonymousMode', 'reputation', 'warnings', 'isSuspended', 'isBanned'])
+        )) || isModerator();
+    }
+
+    // --- POSTS ---
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn()
+        && incoming().id == postId
+        && incoming().authorId == request.auth.uid
+        && incoming().title is string && incoming().title.size() <= 200
+        && incoming().description is string && incoming().description.size() <= 5000
+        && incoming().createdAt is int;
+        
+      allow update: if isSignedIn() && (
+        // Case 1: Post Author updates their post (content only, no status or warnings change)
+        (existing().authorId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'category', 'subCategory', 'location', 'isAnonymous'])) ||
+        // Case 2: Any authenticated user likes/unlikes or bookmarks
+        (incoming().diff(existing()).affectedKeys().hasAll(['likesCount', 'likes']) || incoming().diff(existing()).affectedKeys().hasOnly(['bookmarkedBy', 'likesCount', 'likes', 'commentsCount'])) ||
+        // Case 3: Moderator/Admin edits anything or resolves issues
+        isModerator()
+      );
+      
+      allow delete: if isSignedIn() && (existing().authorId == request.auth.uid || isModerator());
+    }
+
+    // --- COMMENTS (Top level and nested) ---
+    match /comments/{commentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && incoming().postId is string
+        && incoming().authorId == request.auth.uid
+        && incoming().createdAt is int;
+        
+      allow update, delete: if isSignedIn() && (existing().authorId == request.auth.uid || isModerator());
+    }
+
+    match /posts/{postId}/comments/{commentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && incoming().id == commentId
+        && incoming().postId == postId
+        && incoming().authorId == request.auth.uid
+        && incoming().text is string && incoming().text.size() <= 1000
+        && incoming().createdAt is int;
+        
+      allow update, delete: if isSignedIn() && (existing().authorId == request.auth.uid || isModerator());
+    }
+
+    // --- CIVIC ISSUES ---
+    match /issues/{issueId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && incoming().issueId == issueId
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt is int;
+        
+      allow update: if isSignedIn() && (
+        (existing().createdBy == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'category', 'location'])) ||
+        isModerator()
+      );
+      
+      allow delete: if isSignedIn() && isModerator();
+    }
+
+    // --- POLLS ---
+    match /polls/{pollId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isModerator();
+      
+      allow update: if isSignedIn() && (
+        // Action: Cast Vote
+        incoming().diff(existing()).affectedKeys().hasOnly(['votes', 'options'])
+      );
+      
+      allow delete: if isSignedIn() && isModerator();
+    }
+
+    // --- NOTIFICATIONS ---
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // --- AUDIT LOGS ---
+    match /auditLogs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isModerator();
+    }
+
+    // --- REPORTS ---
+    match /reports/{reportId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isModerator();
+    }
+
+    // --- WARNINGS ---
+    match /warnings/{warningId} {
+      allow read: if isSignedIn();
+      allow create: if isModerator();
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || isModerator());
+      allow delete: if isModerator();
+    }
+  }
+}
