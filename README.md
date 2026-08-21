@@ -11,7 +11,6 @@ VoterLens is a full-stack political accountability and civic engagement platform
 - Political Leader Profiles
 - Political Party Pages
 - Polling System
-- AI-Assisted Content Moderation
 - Reputation System
 - Admin Dashboard
 - Location-based Discussions
@@ -42,7 +41,7 @@ VoterLens is a full-stack political accountability and civic engagement platform
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/VoterLens.git
+git clone https://github.com/Divya004tiwari/Voter_Lens.git
 ```
 
 Install dependencies:
@@ -63,16 +62,6 @@ Open:
 
 ```
 http://localhost:3000
-
-## AI Features
-
-VoterLens uses the Google Gemini API to provide:
-
-- Sentiment Analysis
-- Fake News Detection
-- Content Moderation
-- AI-generated Summaries
-```
 
 ## Future Enhancements
 
